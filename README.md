@@ -37,7 +37,6 @@
         </li>
         <li><strong>List Books:</strong>
             <p>Display a list of books in the collection with pagination. Users can specify a page number.</p>
-
             <ul>
                 <li>API URL: <a href="http://localhost:3000/api/books/?page=1&perPage=2" target="_blank">http://localhost:3000/api/books</a></li>
                 <li>Method: GET</li>
@@ -59,7 +58,6 @@
     "totalBooks": 1123
 }
 </pre>
-
                 </li>
             </ul>
         </li>
@@ -111,7 +109,6 @@
     "message": "Book Updated Successfully"
 }    
 </pre>
-
                 </li>
             </ul>
         </li>
@@ -157,8 +154,8 @@
     "totalPages": 10,
     "totalLogs": 91
     }
-</pre>
-                </li>
+</pre>                
+</li>
             </ul>
         </li>
     </ol>
