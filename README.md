@@ -10,12 +10,15 @@ Add a new book to the collection
 API URL: http://localhost:3000/api/books/add
 Method: POST
 Request Body:
+<pre>
 {
     "title": "Book Title",
     "author": "Book Author",
     "genre": "Book Genre"
 }
+</pre>
 Response:
+<pre>
 {
     "book": {
         "title": "Book Title",
@@ -27,6 +30,7 @@ Response:
     "success": true,
     "message": "Book Added Successfully"
 }    
+</pre>
 List Books:
 Display a list of books in the collection with pagination. Users can specify a page number.
 
