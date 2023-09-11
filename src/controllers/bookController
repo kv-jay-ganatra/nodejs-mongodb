@@ -18,22 +18,32 @@ module.exports = {
                 return res.status(400).json({ message: 'Author must be at least 3 characters long' });
             }
 
-            if (!validator.isLength(genre, { min: 1 }) || typeof genre === 'undefined' || genre.trim() === '' ) {
+            if (!validator.isLength(genre, { min: 1 }) || typeof genre === 'undefined' || genre.trim() === '') {
                 return res.status(400).json({ message: 'Genre is required' });
             }
             const newBook = new Book({ title, author, genre });
-            await newBook.save();
-            const logEntry = new ActivityLog({
-                timestamp: new Date(),
-                ipAddress: req.ip == '::1' ? '127.0.0.1' : req.ip,
-                action: 'Book Added',
-                bookInfo: newBook._id,
-            });
-            await logEntry.save();
-            res.status(200).json({
-                book: newBook,
-                success: true,
-                message: 'Book Added Successfully',
+            await newBook.save((error) => {
+                if (error) {
+                    console.error('Error saving user:', error);
+                    res.status(500).json({ message: "Internal Server Error", status: false });
+                } else {
+                    const logEntry = new ActivityLog({
+                        timestamp: new Date(),
+                        ipAddress: req.ip == '::1' ? '127.0.0.1' : req.ip,
+                        action: 'Book Added',
+                        bookInfo: newBook._id,
+                    });
+                    logEntry.save((error) => {
+                        if (error) {
+                            console.error('Error saving log:', error);
+                        }
+                    });
+                    res.status(201).json({
+                        book: newBook,
+                        success: true,
+                        message: 'Book Added Successfully',
+                    });
+                }
             });
         } catch (error) {
             res.status(500).json({ message: "Internal Server Error", status: false });
@@ -63,7 +73,7 @@ module.exports = {
                 perPage,
                 totalPages: Math.ceil(totalBooks / perPage),
                 totalBooks,
-                status:true,
+                status: true,
             });
 
 
