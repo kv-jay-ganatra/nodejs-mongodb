@@ -11,7 +11,7 @@ const helpRoutes = require('./src/routes/helpRoutes');
 const db = require('./src/models');
 const limiter = require('./src/middlewares/rateLimitMiddleware');
 const path = require('path');
-
+const sanitizer = require('express-sanitizer');
 // Define the port for the application, with a fallback to 3000
 const port = process.env.PORT || 3000;
 // Configure CORS (Cross-Origin Resource Sharing) options
@@ -57,6 +57,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 // Serve static assets from the 'src/public' directory
 app.use(express.static('src/public'));
+// Enable request data sanitization
+app.use(sanitizer());
 // Define the route for the home page
 app.get('/', (req, res) => {
   res.render('home');

@@ -1,11 +1,15 @@
 const Book = require('../models/book');
 const ActivityLog = require('../models/activityLog');
 const validator = require('validator');
+
 module.exports = {
 
     save: async (req, res) => {
         try {
-            const { title, author, genre } = req.body;
+            const title = req.sanitize(req.body.title);
+            const author = req.sanitize(req.body.author);
+            const genre = req.sanitize(req.body.genre);
+
             if (!validator.isLength(title, { min: 1 }) || typeof title === 'undefined' || title.trim() === '') {
                 return res.status(400).json({ message: 'Title is required' });
             }
@@ -17,7 +21,6 @@ module.exports = {
             if (!validator.isLength(genre, { min: 1 }) || typeof genre === 'undefined' || genre.trim() === '' ) {
                 return res.status(400).json({ message: 'Genre is required' });
             }
-
             const newBook = new Book({ title, author, genre });
             await newBook.save();
             const logEntry = new ActivityLog({
@@ -79,14 +82,17 @@ module.exports = {
                     message: 'Book not found'
                 });
             }
-            if (req.body.title) {
-                book.title = req.body.title;
+            const title = req.sanitize(req.body.title);
+            const author = req.sanitize(req.body.author);
+            const genre = req.sanitize(req.body.genre);
+            if (title) {
+                book.title = title;
             }
-            if (req.body.author) {
-                book.author = req.body.author;
+            if (author) {
+                book.author = author;
             }
-            if (req.body.genre) {
-                book.genre = req.body.genre;
+            if (genre) {
+                book.genre = genre;
             }
 
             await book.save();
