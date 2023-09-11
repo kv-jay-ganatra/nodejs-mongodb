@@ -1,15 +1,16 @@
 # nodejs-mongodb
 
-API List
-Please note the following important instruction:
-Kindly create a .env file and include the keys MongoDBConnection and PORT along with their corresponding values.
-
-Add a Book:
-Add a new book to the collection
-
-API URL: http://localhost:3000/api/books/add
-Method: POST
-Request Body:
+<div class="intro">
+    <h1>API List</h1>
+    <strong> Please note the following important instruction: </strong>
+    <p>Kindly create a .env file and include the keys MongoDBConnection,AllowOrigin and PORT along with their corresponding values.    </p>
+    <ol>
+        <li><strong>Add a Book:</strong>
+            <p>Add a new book to the collection</p>
+            <ul>
+                <li>API URL: http://localhost:3000/api/books/add</li>
+                <li>Method: POST</li>
+                <li>Request Body: 
 <pre>
 {
     "title": "Book Title",
@@ -17,7 +18,7 @@ Request Body:
     "genre": "Book Genre"
 }
 </pre>
-Response:
+                        <li>Response: 
 <pre>
 {
     "book": {
@@ -31,13 +32,18 @@ Response:
     "message": "Book Added Successfully"
 }    
 </pre>
-List Books:
-Display a list of books in the collection with pagination. Users can specify a page number.
+            </li>
+            </ul>
+        </li>
+        <li><strong>List Books:</strong>
+            <p>Display a list of books in the collection with pagination. Users can specify a page number.</p>
 
-API URL: http://localhost:3000/api/books
-Method: GET
-Request Parameter: page = Number, perPage = Number, author = name, genre = name
-Response:
+            <ul>
+                <li>API URL: <a href="http://localhost:3000/api/books/?page=1&perPage=2" target="_blank">http://localhost:3000/api/books</a></li>
+                <li>Method: GET</li>
+                <li>Request Parameter: page = Number, perPage = Number, author = name, genre = name</li>
+                <li>Response: 
+<pre>
 {
     "books": [
         {
@@ -52,15 +58,20 @@ Response:
     "totalPages": 113,
     "totalBooks": 1123
 }
-Find Books by Author:
-Allow users to search for books by a specific author. This API should be optimized for performance, especially when dealing with a large amount of data.
+</pre>
 
-Note: To Improve query performance we need to add index on the author column.
-
-API URL: http://localhost:3000/api/books
-Method: GET
-Parameters: author = Name
-Response:
+                </li>
+            </ul>
+        </li>
+        <li><strong>Find Books by Author:</strong>
+            <p>Allow users to search for books by a specific author. This API should be optimized for performance, especially when dealing with a large amount of data.</p>
+            <p>Note: To Improve query performance we need to add index on the author column.</p>
+            <ul>
+                <li>API URL: <a href="http://localhost:3000/api/books/?author=Test" target="_blank">http://localhost:3000/api/books</a></li>
+                <li>Method: GET</li>
+                <li>Parameters: author = Name</li>
+                <li>Response: 
+<pre>
 {
     "books": [
     {
@@ -76,13 +87,18 @@ Response:
     "totalPages": 1,
     "totalBooks": 1
 }    
-Update Book Information:
-Update the information of an existing book (title, author, genre).
-
-API URL: http://localhost:3000/api/books/[:bookId]
-Method: PUT
-Parameter: id = bookId, title = Title, author = Author, genre = Genre
-Response:
+</pre>
+                </li>
+            </ul>
+        </li>
+        <li><strong>Update Book Information:</strong>
+            <p>Update the information of an existing book (title, author, genre).</p>
+            <ul>
+                <li>API URL: http://localhost:3000/api/books/[:bookId]</li>
+                <li>Method: PUT</li>
+                <li>Parameter: id = bookId, title = Title, author = Author, genre = Genre   </li>
+                <li>Response: 
+<pre>
 {
     "book": {
         "_id": "64f8eb9eb90c36cf2df034ed",
@@ -94,19 +110,28 @@ Response:
     "status": true,
     "message": "Book Updated Successfully"
 }    
-Delete a Book:
-Remove a book from the collection.
+</pre>
 
-API URL: http://localhost:3000/api/books/[:bookId]
-Method: DELETE
-Parameters: id = bookId
-View Activity Logs:
-Create a REST API endpoint that allows users to view activity logs. Each log entry should include a timestamp, IP address, action performed, and any relevant book information.
+                </li>
+            </ul>
+        </li>
+        <li><strong>Delete a Book:</strong>
+            <p>Remove a book from the collection.</p>
+            <ul>
+                <li>API URL: http://localhost:3000/api/books/[:bookId]</li>
+                <li>Method: DELETE</li>
+                <li>Parameters: id = bookId</li>
+            </ul>
+        </li>
+        <li><strong>View Activity Logs:</strong>
+            <p>Create a REST API endpoint that allows users to view activity logs. Each log entry should include a timestamp, IP address, action performed, and any relevant book information.</p>
+            <ul>
+                <li>API URL: <a href="http://localhost:3000/api/logs/?page=1&perPage=1" target="_blank">http://localhost:3000/api/logs</a></li>
+                <li>Method: GET</li>
+                <li>Parameters: page = Number, perPage = Number</li>
+                <li>Response: 
 
-API URL: http://localhost:3000/api/logs
-Method: GET
-Parameters: page = Number, perPage = Number
-Response:
+<pre>
 {
     "logs": [
         {
@@ -132,3 +157,12 @@ Response:
     "totalPages": 10,
     "totalLogs": 91
     }
+</pre>
+                </li>
+            </ul>
+        </li>
+    </ol>
+<hr>    
+    </div>
+    
+    
