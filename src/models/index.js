@@ -6,4 +6,5 @@ db.mongoose = mongoose;
 db.url = process.env.MongoDBConnection;
 db.books = require('./book.js')(mongoose);
 db.logs = require('./activityLog.js')(mongoose);
+db.restaurant = require('./restaurant.js')(mongoose);
 module.exports = db;

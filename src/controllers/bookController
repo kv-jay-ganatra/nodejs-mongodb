@@ -3,156 +3,164 @@ const ActivityLog = require('../models/activityLog');
 const validator = require('validator');
 
 module.exports = {
+  save: async (req, res) => {
+    try {
+      const title = req.sanitize(req.body.title);
+      const author = req.sanitize(req.body.author);
+      const genre = req.sanitize(req.body.genre);
 
-    save: async (req, res) => {
-        try {
-            const title = req.sanitize(req.body.title);
-            const author = req.sanitize(req.body.author);
-            const genre = req.sanitize(req.body.genre);
+      if (
+        !validator.isLength(title, { min: 1 }) ||
+        typeof title === 'undefined' ||
+        title.trim() === ''
+      ) {
+        return res.status(400).json({ message: 'Title is required' });
+      }
 
-            if (!validator.isLength(title, { min: 1 }) || typeof title === 'undefined' || title.trim() === '') {
-                return res.status(400).json({ message: 'Title is required' });
+      if (
+        !validator.isLength(author, { min: 3 }) ||
+        typeof author === 'undefined' ||
+        author.trim() === ''
+      ) {
+        return res
+          .status(400)
+          .json({ message: 'Author must be at least 3 characters long' });
+      }
+
+      if (
+        !validator.isLength(genre, { min: 1 }) ||
+        typeof genre === 'undefined' ||
+        genre.trim() === ''
+      ) {
+        return res.status(400).json({ message: 'Genre is required' });
+      }
+      const newBook = new Book({ title, author, genre });
+      await newBook.save((error) => {
+        if (error) {
+          console.error('Error saving user:', error);
+          res
+            .status(500)
+            .json({ message: 'Internal Server Error', status: false });
+        } else {
+          const logEntry = new ActivityLog({
+            timestamp: new Date(),
+            ipAddress: req.ip == '::1' ? '127.0.0.1' : req.ip,
+            action: 'Book Added',
+            bookInfo: newBook._id,
+          });
+          logEntry.save((error) => {
+            if (error) {
+              console.error('Error saving log:', error);
             }
-
-            if (!validator.isLength(author, { min: 3 }) || typeof author === 'undefined' || author.trim() === '') {
-                return res.status(400).json({ message: 'Author must be at least 3 characters long' });
-            }
-
-            if (!validator.isLength(genre, { min: 1 }) || typeof genre === 'undefined' || genre.trim() === '') {
-                return res.status(400).json({ message: 'Genre is required' });
-            }
-            const newBook = new Book({ title, author, genre });
-            await newBook.save((error) => {
-                if (error) {
-                    console.error('Error saving user:', error);
-                    res.status(500).json({ message: "Internal Server Error", status: false });
-                } else {
-                    const logEntry = new ActivityLog({
-                        timestamp: new Date(),
-                        ipAddress: req.ip == '::1' ? '127.0.0.1' : req.ip,
-                        action: 'Book Added',
-                        bookInfo: newBook._id,
-                    });
-                    logEntry.save((error) => {
-                        if (error) {
-                            console.error('Error saving log:', error);
-                        }
-                    });
-                    res.status(201).json({
-                        book: newBook,
-                        success: true,
-                        message: 'Book Added Successfully',
-                    });
-                }
-            });
-        } catch (error) {
-            res.status(500).json({ message: "Internal Server Error", status: false });
+          });
+          res.status(201).json({
+            book: newBook,
+            success: true,
+            message: 'Book Added Successfully',
+          });
         }
-    },
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Internal Server Error', status: false });
+    }
+  },
 
-    index: async (req, res) => {
-        try {
-            const page = req.query.page || 1;
-            const perPage = req.query.perPage || 10;
-            const skip = (page - 1) * perPage;
-            const filters = {};
-            if (req.query.author) {
-                filters.author = { $regex: new RegExp(req.query.author, 'i') };
-            }
-            if (req.query.genre) {
-                filters.genre = { $regex: new RegExp(req.query.genre, 'i') };
-            }
+  index: async (req, res) => {
+    try {
+      const page = req.query.page || 1;
+      const perPage = req.query.perPage || 10;
+      const skip = (page - 1) * perPage;
+      const filters = {};
+      if (req.query.author) {
+        filters.author = { $regex: new RegExp(req.query.author, 'i') };
+      }
+      if (req.query.genre) {
+        filters.genre = { $regex: new RegExp(req.query.genre, 'i') };
+      }
 
-            const books = await Book.find(filters)
-                .skip(skip)
-                .limit(parseInt(perPage));
-            const totalBooks = await Book.countDocuments(filters);
-            res.status(200).json({
-                books,
-                currentPage: page,
-                perPage,
-                totalPages: Math.ceil(totalBooks / perPage),
-                totalBooks,
-                status: true,
-            });
+      const books = await Book.find(filters)
+        .skip(skip)
+        .limit(parseInt(perPage));
+      const totalBooks = await Book.countDocuments(filters);
+      res.status(200).json({
+        books,
+        currentPage: page,
+        perPage,
+        totalPages: Math.ceil(totalBooks / perPage),
+        totalBooks,
+        status: true,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error, status: false });
+    }
+  },
 
+  update: async (req, res) => {
+    try {
+      const bookId = req.params.id;
+      const book = await Book.findById(bookId);
+      if (!book) {
+        return res.status(404).json({
+          status: false,
+          message: 'Book not found',
+        });
+      }
+      const title = req.sanitize(req.body.title);
+      const author = req.sanitize(req.body.author);
+      const genre = req.sanitize(req.body.genre);
+      if (title) {
+        book.title = title;
+      }
+      if (author) {
+        book.author = author;
+      }
+      if (genre) {
+        book.genre = genre;
+      }
 
-        } catch (error) {
-            res.status(500).json({ message: error, status: false });
-        }
-    },
+      await book.save();
+      const logEntry = new ActivityLog({
+        timestamp: new Date(),
+        ipAddress: req.ip == '::1' ? '127.0.0.1' : req.ip,
+        action: 'Book Updated',
+        bookInfo: bookId,
+      });
+      await logEntry.save();
+      res.json({
+        book,
+        status: true,
+        message: 'Book Updated Successfully',
+      });
+    } catch (error) {
+      res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+  },
 
-    update: async (req, res) => {
-        try {
-            const bookId = req.params.id;
-            const book = await Book.findById(bookId);
-            if (!book) {
-                return res.status(404).json({
-                    status: false,
-                    message: 'Book not found'
-                });
-            }
-            const title = req.sanitize(req.body.title);
-            const author = req.sanitize(req.body.author);
-            const genre = req.sanitize(req.body.genre);
-            if (title) {
-                book.title = title;
-            }
-            if (author) {
-                book.author = author;
-            }
-            if (genre) {
-                book.genre = genre;
-            }
-
-            await book.save();
-            const logEntry = new ActivityLog({
-                timestamp: new Date(),
-                ipAddress: req.ip == '::1' ? '127.0.0.1' : req.ip,
-                action: 'Book Updated',
-                bookInfo: bookId,
-            });
-            await logEntry.save();
-            res.json({
-                book,
-                status: true,
-                message: 'Book Updated Successfully'
-            });
-        } catch (error) {
-            res.status(500).json({ status: false, message: 'Internal server error' });
-        }
-    },
-
-    delete: async (req, res) => {
-        try {
-            const bookId = req.params.id;
-            console.log(bookId);
-            const book = await Book.findByIdAndDelete(bookId);
-            if (!book) {
-                return res.status(404).json({
-                    status: false,
-                    message: 'Book not found'
-                });
-            }
-            const deleted = await book.remove();
-            const logEntry = new ActivityLog({
-                timestamp: new Date(),
-                ipAddress: req.ip == '::1' ? '127.0.0.1' : req.ip,
-                action: 'Book Deleted',
-                bookInfo: bookId,
-            });
-            await logEntry.save();
-            res.json({
-                status: true,
-                message: 'Book Deleted Successfully'
-            });
-
-
-        } catch (error) {
-            res.status(500).json({ message: "Internal server error", status: false });
-        }
-    },
+  delete: async (req, res) => {
+    try {
+      const bookId = req.params.id;
+      console.log(bookId);
+      const book = await Book.findByIdAndDelete(bookId);
+      if (!book) {
+        return res.status(404).json({
+          status: false,
+          message: 'Book not found',
+        });
+      }
+      const deleted = await book.remove();
+      const logEntry = new ActivityLog({
+        timestamp: new Date(),
+        ipAddress: req.ip == '::1' ? '127.0.0.1' : req.ip,
+        action: 'Book Deleted',
+        bookInfo: bookId,
+      });
+      await logEntry.save();
+      res.json({
+        status: true,
+        message: 'Book Deleted Successfully',
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', status: false });
+    }
+  },
 };
-
-
-
