@@ -161,7 +161,7 @@
 
 
 
-        <h3>Considered the above-attached JSON file as the dump of the collection and import into your local MongoDB.</h3>
+<h3>Considered the above-attached JSON file as the dump of the collection and import into your local MongoDB.</h3>
 <p>Write MongoDB queries for the below-given requirements:</p>
 
 <ol>
